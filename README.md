@@ -30,10 +30,10 @@ luacpp是C\++库，是嵌入Lua并注册C\++相关的对象到lua的封装库。
 ``` c++
 luacpp_t luacpp;
 try {
-    //! 注册C++ 对象到lua中
+    /**< 注册C++ 对象到lua中 */
     luacpp.reg(lua_reg);
 
-    //! 载入lua文件
+    /**< 载入lua文件 */
     luacpp.add_package_path("./");
     luacpp.load_file("test.lua");
 
@@ -46,7 +46,7 @@ try {
 ``` c++
 int var = 0;
 assert(0 == luacpp.get_global_variable("test_var", var));
-//! 设置全局变量
+/**< 设置全局变量 */
 assert(0 == luacpp.set_global_variable("test_var", ++var));
 ```
 
@@ -57,7 +57,7 @@ luacpp.run_string("print("exe run_string!!")");
 
 ##### 调用lua函数
 ``` c++
-//! 调用lua函数, 基本类型作为参数
+/**< 调用lua函数, 基本类型作为参数 */
 int32_t arg1 = 1;
 float   arg2 = 2;
 double  arg3 = 3;
@@ -67,7 +67,7 @@ luacpp.call<bool>("test_func", arg1, arg2, arg3,  arg4);
 
 ##### lua table 和 C++ STL 转换
 ```
-//! 调用lua函数，stl类型作为参数， 自动转换为lua talbe
+/**< 调用lua函数，stl类型作为参数， 自动转换为lua talbe */
 vector<int> vec;        vec.push_back(100);
 list<float> lt;         lt.push_back(99.99);
 set<string> st;         st.insert("OhNIce");
@@ -77,7 +77,7 @@ luacpp.call<string>("test_stl", vec, lt, st,  mp);
 
 ##### lua返回值转换 C++ STL
 ``` c++
-//! 调用lua 函数返回 talbe，自动转换为stl结构
+/**< 调用lua 函数返回 talbe，自动转换为stl结构 */
 vec = luacpp.call<vector<int> >("test_return_stl_vector");
 lt  = luacpp.call<list<float> >("test_return_stl_list");
 st  = luacpp.call<set<string> >("test_return_stl_set");
@@ -86,23 +86,24 @@ mp  = luacpp.call<map<string, int> >("test_return_stl_map");
 
 ##### C++ 作为参数
 ``` c++
-//! 调用lua函数，c++ 对象作为参数, foo_t 必须被注册过
+/**< 调用lua函数，c++ 对象作为参数, foo_t 必须被注册过 */
 foo_t* foo_ptr = new foo_t(456);
 luacpp.call<bool>("test_object", foo_ptr);
 ```
 
 ##### C++ 对象作为返回值
 ``` c++
-//! 调用lua函数，c++ 对象作为返回值, foo_t 必须被注册过
+/**< 调用lua函数，c++ 对象作为返回值, foo_t 必须被注册过 */
 assert(foo_ptr == luacpp.call<foo_t*>("test_ret_object", foo_ptr));
-//! 调用lua函数，c++ 对象作为返回值, 自动转换为基类
+
+/**< 调用lua函数，c++ 对象作为返回值, 自动转换为基类 */
 base_t* base_ptr = luacpp.call<base_t*>("test_ret_base_object", foo_ptr);
 assert(base_ptr == foo_ptr);
 ```
 
 ##### 注册C++ 对象更容易
 ``` c++
-//! 注册C++ 对象到lua中
+/**< 注册C++ 对象到lua中 */
 luacpp.reg(lua_reg);
 ```
 
@@ -113,3 +114,4 @@ luacpp.reg(lua_reg);
 
 * [http://liwangmj.com](http://liwangmj.com)
 * [liwangmj@gmail.com](mailto:liwangmj@gmail.com)
+
