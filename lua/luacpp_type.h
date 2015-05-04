@@ -52,7 +52,7 @@ struct strtoll_tool_t
 #endif
 
 #include <stdlib.h>
-#include <lua.hpp>
+#include <lua/lua.hpp>
 #include <string.h>
 #include <sstream>
 #include <vector>

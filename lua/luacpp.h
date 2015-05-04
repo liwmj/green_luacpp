@@ -31,7 +31,7 @@
 #endif
 
 #include <stdlib.h>
-#include <lua.hpp>
+#include <lua/lua.hpp>
 
 #include <string>
 using namespace std;

@@ -26,7 +26,7 @@
 #ifndef _LUA_LUACPP_REGISTER_H
 #define _LUA_LUACPP_REGISTER_H
 
-#include <lua.hpp>
+#include <lua/lua.hpp>
 #include <string>
 #include <string.h>
 #include <stdio.h>
