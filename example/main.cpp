@@ -60,8 +60,8 @@ public:
 
 static void lua_reg(lua_State* ls)
 {
-    //! 注册基类函数, ctor() 为构造函数的类型
-	luacpp_register_t<base_t, ctor()>(ls, "base_t")  //! 注册构造函数
+    //! 注册基类函数, LUACTOR() 为构造函数的类型
+	luacpp_register_t<base_t, LUACTOR()>(ls, "base_t")  //! 注册构造函数
 					.def(&base_t::dump, "dump")     //! 注册基类的函数
 					.def(&base_t::v, "v");          //! 注册基类的属性
 

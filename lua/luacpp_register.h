@@ -38,7 +38,9 @@ namespace LuaCpp
 {
 
 #define virtual_ctor int
-#define ctor void
+#ifndef LUACTOR
+#define LUACTOR void
+#endif
 #define LUA_ARG_POS(x) (x)
 
 typedef int (*mt_index_func_t)(lua_State*, void*, const char*);
