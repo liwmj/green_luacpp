@@ -36,8 +36,8 @@
 #include <string>
 using namespace std;
 
-#include "lua/green_luacpp_type.h"
-#include "lua/green_luacpp_register.h"
+#include "green_luacpp_type.h"
+#include "green_luacpp_register.h"
 
 namespace green_luacpp
 {

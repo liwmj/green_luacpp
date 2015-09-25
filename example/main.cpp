@@ -3,7 +3,7 @@
 #include <assert.h>
 using namespace std;
 
-#include "lua/green_luacpp.h"
+#include "green_luacpp.h"
 
 using namespace green_luacpp;
 

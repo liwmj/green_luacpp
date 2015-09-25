@@ -32,7 +32,7 @@
 #include <stdio.h>
 using namespace std;
 
-#include "lua/green_luacpp_type.h"
+#include "green_luacpp_type.h"
 
 namespace green_luacpp
 {
