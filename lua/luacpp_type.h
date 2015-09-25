@@ -16,15 +16,15 @@
  * 
  */
 /**
- * @file luacpp_type.h
+ * @file green_luacpp_type.h
  * @brief only header
  * @author Wim Li <liwangmj@gmail.com> (http://liwangmj.com)
  * @version 1.1.0
  * @date 2015-05-01
  */
 
-#ifndef _LUA_LUACPP_TYPE_H
-#define _LUA_LUACPP_TYPE_H
+#ifndef _LUA_green_luacpp_TYPE_H
+#define _LUA_green_luacpp_TYPE_H
 
 
 #ifndef  _WIN32
@@ -61,7 +61,7 @@ struct strtoll_tool_t
 #include <map>
 using namespace std;
 
-namespace LuaCpp
+namespace green_luacpp
 {
 
 #define INHERIT_TABLE "inherit_table"
@@ -91,7 +91,7 @@ private:
     string m_err;
 };
 
-class luacpp_tool_t
+class green_luacpp_tool_t
 {
 public:
     static void dump_stack(lua_State* ls_)

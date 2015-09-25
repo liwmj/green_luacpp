@@ -16,15 +16,15 @@
  * 
  */
 /**
- * @file luacpp_register.h
+ * @file green_luacpp_register.h
  * @brief only header
  * @author Wim Li <liwangmj@gmail.com> (http://liwangmj.com)
  * @version 1.1.0
  * @date 2015-05-01
  */
 
-#ifndef _LUA_LUACPP_REGISTER_H
-#define _LUA_LUACPP_REGISTER_H
+#ifndef _LUA_GREEN_LUACPP_REGISTER_H
+#define _LUA_GREEN_LUACPP_REGISTER_H
 
 #include <lua/lua.hpp>
 #include <string>
@@ -32,9 +32,9 @@
 #include <stdio.h>
 using namespace std;
 
-#include "lua/luacpp_type.h"
+#include "lua/green_luacpp_type.h"
 
-namespace LuaCpp
+namespace green_luacpp
 {
 
 #define virtual_ctor int
@@ -52,7 +52,7 @@ struct op_tool_t
 {
 	static string to_metatable_name(const string& name_)
 	{
-		return string("luacpp.") + name_;
+		return string("green_luacpp.") + name_;
 	}
 };
 
@@ -253,9 +253,9 @@ struct function_traits_t;
 
 //! CLASS_TYPE 为要注册的类型, CTOR_TYPE为构造函数类型
 template<typename T>
-struct luacpp_register_router_t;
+struct green_luacpp_register_router_t;
 template<typename T>
-struct luacpp_register_router_t
+struct green_luacpp_register_router_t
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, T arg_, const string& s_)
@@ -264,21 +264,21 @@ struct luacpp_register_router_t
 	}
 };
 template<typename CLASS_TYPE = op_tool_t, typename CTOR_TYPE = void()>
-class luacpp_register_t
+class green_luacpp_register_t
 {
 public:
-	luacpp_register_t(lua_State* ls_):m_ls(ls_){}
-	luacpp_register_t(lua_State* ls_, const string& class_name_, string inherit_name_ = "");
+	green_luacpp_register_t(lua_State* ls_):m_ls(ls_){}
+	green_luacpp_register_t(lua_State* ls_, const string& class_name_, string inherit_name_ = "");
 
 
 	template<typename FUNC_TYPE>
-	luacpp_register_t& def(FUNC_TYPE func, const string& s_)
+	green_luacpp_register_t& def(FUNC_TYPE func, const string& s_)
 	{
-		luacpp_register_router_t<FUNC_TYPE>::call(this, func, s_);
+		green_luacpp_register_router_t<FUNC_TYPE>::call(this, func, s_);
 		return *this;
 	}
 	template<typename FUNC_TYPE>
-	luacpp_register_t& def_class_func(FUNC_TYPE func_, const string& func_name_)
+	green_luacpp_register_t& def_class_func(FUNC_TYPE func_, const string& func_name_)
 	{
 		lua_function_t class_function = &class_function_traits_t<FUNC_TYPE>::lua_function;
 		typedef typename class_function_traits_t<FUNC_TYPE>::userdata_for_function_info userdata_for_function_t;
@@ -295,7 +295,7 @@ public:
 		return *this;
 	}
 	template<typename RET>
-	luacpp_register_t& def_class_property(RET CLASS_TYPE::* p_, const string& property_name_)
+	green_luacpp_register_t& def_class_property(RET CLASS_TYPE::* p_, const string& property_name_)
 	{
 		typedef typename class_property_traits_t<CLASS_TYPE, RET>::process_index_func_t process_index_func_t;
 		typedef typename class_property_traits_t<CLASS_TYPE, RET>::process_newindex_func_t process_newindex_func_t;
@@ -321,7 +321,7 @@ public:
 		return *this;
 	}
 	template<typename FUNC>
-	luacpp_register_t& def_func(FUNC func_, const string& func_name_)
+	green_luacpp_register_t& def_func(FUNC func_, const string& func_name_)
 	{
 	    if (m_class_name.empty())
 	    {
@@ -358,7 +358,7 @@ private:
 };
 
 template<typename CLASS_TYPE, typename CTOR_TYPE>
-luacpp_register_t<CLASS_TYPE, CTOR_TYPE>::luacpp_register_t(lua_State* ls_, const string& class_name_, string inherit_name_):
+green_luacpp_register_t<CLASS_TYPE, CTOR_TYPE>::green_luacpp_register_t(lua_State* ls_, const string& class_name_, string inherit_name_):
 	m_ls(ls_),
 	m_class_name(class_name_)
 {
@@ -2462,7 +2462,7 @@ struct function_traits_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8,
 };
 
 template<typename RET>
-struct luacpp_register_router_t<RET (*)()>
+struct green_luacpp_register_router_t<RET (*)()>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(), const string& s_)
@@ -2471,7 +2471,7 @@ struct luacpp_register_router_t<RET (*)()>
 	}
 };
 template<typename RET, typename ARG1>
-struct luacpp_register_router_t<RET (*)(ARG1)>
+struct green_luacpp_register_router_t<RET (*)(ARG1)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1), const string& s_)
@@ -2480,7 +2480,7 @@ struct luacpp_register_router_t<RET (*)(ARG1)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2), const string& s_)
@@ -2489,7 +2489,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3), const string& s_)
@@ -2498,7 +2498,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4), const string& s_)
@@ -2507,7 +2507,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5), const string& s_)
@@ -2516,7 +2516,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6), const string& s_)
@@ -2525,7 +2525,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7), const string& s_)
@@ -2533,7 +2533,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7
 		reg_->def_func(arg_, s_);
 	}
 };template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8), const string& s_)
@@ -2542,7 +2542,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7
 	}
 };
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8, typename ARG9>
-struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
+struct green_luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9), const string& s_)
@@ -2552,7 +2552,7 @@ struct luacpp_register_router_t<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7
 };
 
 template<typename RET, typename CLASS_TYPE>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)()>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)()>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)() , const string& s_)
@@ -2561,7 +2561,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)()>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1), const string& s_)
@@ -2570,7 +2570,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1)>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2), const string& s_)
@@ -2579,7 +2579,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2)>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3), const string& s_)
@@ -2588,7 +2588,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3)>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4), const string& s_)
@@ -2597,7 +2597,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4)>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5), const string& s_)
@@ -2606,7 +2606,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6), const string& s_)
@@ -2615,7 +2615,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7), const string& s_)
@@ -2623,7 +2623,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 		reg_->def_class_func(arg_, s_);
 	}
 };template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8), const string& s_)
@@ -2632,7 +2632,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8, typename ARG9>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9), const string& s_)
@@ -2642,7 +2642,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 };
 
 template<typename RET, typename CLASS_TYPE>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)() const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)() const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)() const, const string& s_)
@@ -2651,7 +2651,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)() const>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1) const, const string& s_)
@@ -2660,7 +2660,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1) const>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2) const, const string& s_)
@@ -2669,7 +2669,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2) const>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3) const, const string& s_)
@@ -2678,7 +2678,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3) const>
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4) const, const string& s_)
@@ -2687,7 +2687,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4) cons
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5) const, const string& s_)
@@ -2696,7 +2696,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const, const string& s_)
@@ -2705,7 +2705,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const, const string& s_)
@@ -2713,7 +2713,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 		reg_->def_class_func(arg_, s_);
 	}
 };template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const, const string& s_)
@@ -2722,7 +2722,7 @@ struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5
 	}
 };
 template<typename RET, typename CLASS_TYPE, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6, typename ARG7, typename ARG8, typename ARG9>
-struct luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const>
+struct green_luacpp_register_router_t<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const>
 {
 	template<typename REG_TYPE>
 	static void call(REG_TYPE* reg_, RET (CLASS_TYPE::*arg_)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const, const string& s_)
