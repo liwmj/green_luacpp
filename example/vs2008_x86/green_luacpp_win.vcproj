@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;&quot;D:\Program Files (x86)\Lua\5.1\include&quot;"
+				AdditionalIncludeDirectories="../../;&quot;D:\Program Files (x86)\Lua\5.1\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

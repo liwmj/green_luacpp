@@ -17,7 +17,7 @@ BIN=app_lua
 #源文件目录
 SrcDir= .
 #头文件目录
-IncDir= ../include
+IncDir= ../
 #连接库目录
 LibDir= /usr/local/lib
 SRCS=$(foreach dir,$(SrcDir),$(wildcard $(dir)/*.cpp))
