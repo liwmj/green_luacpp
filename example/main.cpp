@@ -66,7 +66,7 @@ static void lua_reg(lua_State* ls)
 					.def(&base_t::v, "v");          //! 注册基类的属性
 
     //! 注册子类，ctor(int) 为构造函数， foo_t为类型名称， base_t为继承的基类名称
-	green_luacpp_register_t<foo_t, ctor(int)>(ls, "foo_t", "base_t")
+	green_luacpp_register_t<foo_t, LUACTOR(int)>(ls, "foo_t", "base_t")
 				.def(&foo_t::print, "print")        //! 子类的函数
 				.def(&foo_t::a, "a");               //! 子类的字段
 
@@ -74,7 +74,7 @@ static void lua_reg(lua_State* ls)
 				.def(&dumy, "dumy");                //! 注册静态函数
 
     
-    green_luacpp_register_t<clazz, ctor()>(ls, "clazz")
+    green_luacpp_register_t<clazz, LUACTOR()>(ls, "clazz")
 				.def(&clazz::static_func, "static_func"); 
     
 }
