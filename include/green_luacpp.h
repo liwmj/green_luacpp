@@ -1,19 +1,19 @@
 /* Copyright (C) 2015 Oneiric Tiger.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License Version 2
  * as published by the Free Software Foundation; either current version
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License Version 2 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License Version 2
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 /**
  * @file green_luacpp.h
@@ -41,7 +41,7 @@ using namespace std;
 
 namespace green_luacpp
 {
-//! 表示void类型，由于void类型不能return，用void_ignore_t适配
+//! 琛ㄧずvoid绫诲瀷锛岀敱浜巚oid绫诲瀷涓嶈兘return锛岀敤void_ignore_t閫傞厤
 template<typename T>
 struct void_ignore_t;
 
@@ -66,12 +66,13 @@ class green_luacpp_t
         STACK_MIN_NUM = 20
     };
 public:
-    green_luacpp_t():
-		m_ls(NULL)
-	{
-		m_ls = ::luaL_newstate();
-		::luaL_openlibs(m_ls);
-	}
+    green_luacpp_t(bool b = false):
+                m_ls(NULL),
+        m_bEnableModFunc(b)
+        {
+                m_ls = ::luaL_newstate();
+                ::luaL_openlibs(m_ls);
+        }
     virtual ~green_luacpp_t()
     {
         if (m_ls)
@@ -81,6 +82,7 @@ public:
         }
     }
     void dump_stack() const { green_luacpp_tool_t::dump_stack(m_ls); }
+    void setModFuncFlag(bool b) { m_bEnableModFunc = b; }
 
     lua_State* get_lua_state()
     {
@@ -112,30 +114,30 @@ public:
         run_string(new_path);
         return 0;
     }
-    int  load_file(const string& file_name_)// 
-	{
-		if (luaL_dofile(m_ls, file_name_.c_str()))
-		{
-			string err = green_luacpp_tool_t::dump_error(m_ls, "cannot load file<%s>", file_name_.c_str());
-			::lua_pop(m_ls, 1);
-			throw lua_exception_t(err);
-		}
+    int  load_file(const string& file_name_)//
+        {
+                if (luaL_dofile(m_ls, file_name_.c_str()))
+                {
+                        string err = green_luacpp_tool_t::dump_error(m_ls, "cannot load file<%s>", file_name_.c_str());
+                        ::lua_pop(m_ls, 1);
+                        throw lua_exception_t(err);
+                }
 
-		return 0;
-	}
+                return 0;
+        }
     template<typename T>
     void open_lib(T arg_);
 
-    void run_string(const char* str_) 
-	{
-		if (luaL_dostring(m_ls, str_))
-		{
-			string err = green_luacpp_tool_t::dump_error(m_ls, "green_luacpp_t::run_string ::lua_pcall faled str<%s>", str_);
-			::lua_pop(m_ls, 1);
-			throw lua_exception_t(err);
-		}
-	}
-    void run_string(const string& str_) 
+    void run_string(const char* str_)
+        {
+                if (luaL_dostring(m_ls, str_))
+                {
+                        string err = green_luacpp_tool_t::dump_error(m_ls, "green_luacpp_t::run_string ::lua_pcall faled str<%s>", str_);
+                        ::lua_pop(m_ls, 1);
+                        throw lua_exception_t(err);
+                }
+        }
+    void run_string(const string& str_)
     {
         run_string(str_.c_str());
     }
@@ -163,17 +165,17 @@ public:
     template<typename T>
     void  reg(T a);
 
-    void call(const char* func_name_) 
-	{
-		::lua_getglobal(m_ls, func_name_);
+    void call(const char* func_name_)
+        {
+                ::lua_getglobal(m_ls, func_name_);
 
-		if (::lua_pcall(m_ls, 0, 0, 0) != 0)
-		{
-			string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall faled func_name<%s>", func_name_);
-			::lua_pop(m_ls, 1);
-			throw lua_exception_t(err);
-		}
-	}
+                if (::lua_pcall(m_ls, 0, 0, 0) != 0)
+                {
+                        string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall faled func_name<%s>", func_name_);
+                        ::lua_pop(m_ls, 1);
+                        throw lua_exception_t(err);
+                }
+        }
 
     template<typename RET>
     RET_V call(const char* func_name_) ;
@@ -221,7 +223,52 @@ public:
              const ARG8& arg8_, const ARG9& arg9_) ;
 
 private:
+    int  getFuncByName(const char* func_name_)
+    {
+        if (false == m_bEnableModFunc)
+        {
+            lua_getglobal(m_ls, func_name_);
+            return 0;
+        }
+        char tmpBuff[512] = {0};
+        char* begin = tmpBuff;
+        for (unsigned int i = 0; i < sizeof(tmpBuff); ++i)
+        {
+            char c = func_name_[i];
+            tmpBuff[i] = c;
+            if (c == '\0')
+            {
+                break;
+            }
+
+            if (c == '.')
+            {
+                tmpBuff[i] = '\0';
+                lua_getglobal(m_ls, lua_string_tool_t::c_str(begin));
+                const char* begin2 = func_name_ + i + 1;
+                lua_getfield(m_ls, -1, begin2);
+                lua_remove(m_ls, -2);
+                return 0;
+            }
+            else if (c == ':')
+            {
+                tmpBuff[i] = '\0';
+                lua_getglobal(m_ls, begin);
+                const char* begin2 = func_name_ + i + 1;
+                lua_getfield(m_ls, -1, begin2);
+                lua_pushvalue(m_ls, -2);
+                lua_remove(m_ls, -3);
+                return 1;
+            }
+        }
+
+        lua_getglobal(m_ls, func_name_);
+        return 0;
+    }
+
+private:
     lua_State*  m_ls;
+    bool        m_bEnableModFunc;
 };
 
 template<typename T>
@@ -270,13 +317,13 @@ void  green_luacpp_t::reg(T a)
 
 //! impl for common RET
 template<typename RET>
-RET_V green_luacpp_t::call(const char* func_name_) 
+RET_V green_luacpp_t::call(const char* func_name_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
-    if (lua_pcall(m_ls, 0, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 0, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -298,15 +345,15 @@ RET_V green_luacpp_t::call(const char* func_name_)
 
 
 template<typename RET, typename ARG1>
-RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_) 
+RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
 
-    if (lua_pcall(m_ls, 1, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 1, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -329,16 +376,16 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_)
 
 template<typename RET, typename ARG1, typename ARG2>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_)
-                                 
+
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
 
-    if (lua_pcall(m_ls, 2, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 2, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -360,17 +407,17 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
 
 template<typename RET, typename ARG1, typename ARG2, typename ARG3>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_,
-                                 const ARG3& arg3_) 
+                                 const ARG3& arg3_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
     lua_op_t<ARG3>::push_stack(m_ls, arg3_);
 
-    if (lua_pcall(m_ls, 3, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 3, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -392,18 +439,18 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
 
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
-                                 const ARG4& arg4_) 
+                                 const ARG4& arg4_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
     lua_op_t<ARG3>::push_stack(m_ls, arg3_);
     lua_op_t<ARG4>::push_stack(m_ls, arg4_);
 
-    if (lua_pcall(m_ls, 4, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 4, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -425,11 +472,11 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
 
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
-                                 const ARG4& arg4_, const ARG5& arg5_) 
+                                 const ARG4& arg4_, const ARG5& arg5_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
@@ -437,7 +484,7 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
     lua_op_t<ARG4>::push_stack(m_ls, arg4_);
     lua_op_t<ARG5>::push_stack(m_ls, arg5_);
 
-    if (lua_pcall(m_ls, 5, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 5, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -460,11 +507,11 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
 
 template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5, typename ARG6>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
-                                 const ARG4& arg4_, const ARG5& arg5_, const ARG6& arg6_) 
+                                 const ARG4& arg4_, const ARG5& arg5_, const ARG6& arg6_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
@@ -473,7 +520,7 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
     lua_op_t<ARG5>::push_stack(m_ls, arg5_);
     lua_op_t<ARG6>::push_stack(m_ls, arg6_);
 
-    if (lua_pcall(m_ls, 6, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 6, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -498,11 +545,11 @@ template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG
                 typename ARG5, typename ARG6, typename ARG7>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
                                  const ARG4& arg4_, const ARG5& arg5_, const ARG6& arg6_,
-                                 const ARG7& arg7_) 
+                                 const ARG7& arg7_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
@@ -512,7 +559,7 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
     lua_op_t<ARG6>::push_stack(m_ls, arg6_);
     lua_op_t<ARG7>::push_stack(m_ls, arg7_);
 
-    if (lua_pcall(m_ls, 7, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 7, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -537,11 +584,11 @@ template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG
                 typename ARG5, typename ARG6, typename ARG7, typename ARG8>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
                                  const ARG4& arg4_, const ARG5& arg5_, const ARG6& arg6_, const ARG7& arg7_,
-                                 const ARG8& arg8_) 
+                                 const ARG8& arg8_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
@@ -552,7 +599,7 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
     lua_op_t<ARG7>::push_stack(m_ls, arg7_);
     lua_op_t<ARG8>::push_stack(m_ls, arg8_);
 
-    if (lua_pcall(m_ls, 8, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 8, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);
@@ -577,11 +624,11 @@ template<typename RET, typename ARG1, typename ARG2, typename ARG3, typename ARG
                 typename ARG5, typename ARG6, typename ARG7, typename ARG8, typename ARG9>
 RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2& arg2_, const ARG3& arg3_,
                                  const ARG4& arg4_, const ARG5& arg5_, const ARG6& arg6_, const ARG7& arg7_,
-                                 const ARG8& arg8_, const ARG9& arg9_) 
+                                 const ARG8& arg8_, const ARG9& arg9_)
 {
     RET_V ret = init_value_traits_t<RET_V>::value();
 
-    lua_getglobal(m_ls, lua_string_tool_t::c_str(func_name_));
+    int tmpArg = getFuncByName(func_name_);
 
     lua_op_t<ARG1>::push_stack(m_ls, arg1_);
     lua_op_t<ARG2>::push_stack(m_ls, arg2_);
@@ -593,7 +640,7 @@ RET_V green_luacpp_t::call(const char* func_name_, const ARG1& arg1_, const ARG2
     lua_op_t<ARG8>::push_stack(m_ls, arg8_);
     lua_op_t<ARG9>::push_stack(m_ls, arg9_);
 
-    if (lua_pcall(m_ls, 9, 1, 0) != 0)
+    if (lua_pcall(m_ls, tmpArg + 9, 1, 0) != 0)
     {
         string err = green_luacpp_tool_t::dump_error(m_ls, "lua_pcall failed func_name<%s>", func_name_);
         lua_pop(m_ls, 1);

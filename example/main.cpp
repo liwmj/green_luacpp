@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
 	green_luacpp_t green_luacpp;
     try 
     {
+        green_luacpp.setModFuncFlag(true);
         //! 注册C++ 对象到lua中
         green_luacpp.reg(lua_reg);
         
@@ -110,6 +111,7 @@ int main(int argc, char* argv[])
         double  arg3 = 3;
         string  arg4 = "4";
         green_luacpp.call<bool>("test_func", arg1, arg2, arg3,  arg4);
+        green_luacpp.call<bool>("Mod:funcTest1", arg1, arg2);
         
         //! 调用lua函数，stl类型作为参数， 自动转换为lua talbe
         vector<int> vec;        vec.push_back(100);

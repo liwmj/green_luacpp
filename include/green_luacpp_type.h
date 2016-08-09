@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Oneiric Tiger.
+﻿/* Copyright (C) 2015 Oneiric Tiger.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License Version 2
@@ -23,8 +23,8 @@
  * @date 2015-05-01
  */
 
-#ifndef _LUA_green_luacpp_TYPE_H
-#define _LUA_green_luacpp_TYPE_H
+#ifndef _LUA_GREEN_LUACPP_TYPE_H
+#define _LUA_GREEN_LUACPP_TYPE_H
 
 
 #ifndef  _WIN32
@@ -222,6 +222,195 @@ template<typename T>
 char lua_type_info_t<T>::inherit_name[128] = {0};
 
 
+template<typename ARG_TYPE>
+struct basetype_ptr_traits_t;
+template<>
+struct basetype_ptr_traits_t<const string&>
+{
+    typedef string arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<string&>
+{
+    typedef string arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<string>
+{
+    typedef string arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<const char*>
+{
+    typedef char* arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<char*>
+{
+    typedef char* arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<char>
+{
+    typedef char arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<unsigned char>
+{
+    typedef unsigned char arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<short>
+{
+    typedef short arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<unsigned short>
+{
+    typedef unsigned short arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<int>
+{
+    typedef int arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<unsigned int>
+{
+    typedef unsigned int arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<long>
+{
+    typedef long arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<unsigned long>
+{
+    typedef unsigned long arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<long long>
+{
+    typedef long long arg_type_t;
+};
+template<>
+struct basetype_ptr_traits_t<unsigned long long>
+{
+    typedef unsigned long long arg_type_t;
+};
+
+template<>
+struct basetype_ptr_traits_t<float>
+{
+    typedef float arg_type_t;
+};
+
+
+template<>
+struct basetype_ptr_traits_t<double>
+{
+    typedef double arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<const T&>
+{
+    typedef T* arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<T&>
+{
+    typedef T* arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<T*>
+{
+    typedef T* arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<const T*>
+{
+    typedef T* arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<vector<T> >
+{
+    typedef vector<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<list<T> >
+{
+    typedef list<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<set<T> >
+{
+    typedef set<T> arg_type_t;
+};
+template<typename K, typename V>
+struct basetype_ptr_traits_t<map<K, V> >
+{
+    typedef map<K, V> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<vector<T> &>
+{
+    typedef vector<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<list<T> &>
+{
+    typedef list<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<set<T> &>
+{
+    typedef set<T> arg_type_t;
+};
+template<typename K, typename V>
+struct basetype_ptr_traits_t<map<K, V> &>
+{
+    typedef map<K, V> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<const vector<T> &>
+{
+    typedef vector<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<const list<T> &>
+{
+    typedef list<T> arg_type_t;
+};
+template<typename T>
+struct basetype_ptr_traits_t<const set<T> &>
+{
+    typedef set<T> arg_type_t;
+};
+template<typename K, typename V>
+struct basetype_ptr_traits_t<const map<K, V> &>
+{
+    typedef map<K, V> arg_type_t;
+};
+
+
+//!-------------------------------------------------------------------------------------------------------------------------
+template<typename ARG_TYPE>
+struct p_t;
+
+template<typename ARG_TYPE>
+struct p_t
+{
+    static ARG_TYPE r(ARG_TYPE a) { return a;  }
+    static ARG_TYPE& r(ARG_TYPE* a) { return *a; }
+};
+template<typename ARG_TYPE>
+struct p_t<ARG_TYPE&>
+{
+    static ARG_TYPE& r(ARG_TYPE& a) { return a;  }
+    static ARG_TYPE& r(ARG_TYPE* a) { return *a; }
+};
+//!#########################################################################################################################
 template<typename ARG_TYPE>
 struct reference_traits_t;
 
@@ -753,6 +942,22 @@ struct lua_op_t<void*>
 template<typename T>
 struct lua_op_t<T*>
 {
+    static void push_stack(lua_State* ls_, T& arg_)
+    {
+        void* ptr = lua_newuserdata(ls_, sizeof(userdata_for_object_t<T>));
+        new (ptr) userdata_for_object_t<T>(&arg_);
+
+        luaL_getmetatable(ls_, lua_type_info_t<T>::get_name());
+        lua_setmetatable(ls_, -2);
+    }
+    static void push_stack(lua_State* ls_, const T& arg_)
+    {
+        void* ptr = lua_newuserdata(ls_, sizeof(userdata_for_object_t<const T>));
+        new (ptr) userdata_for_object_t<const T>(&arg_);
+
+        luaL_getmetatable(ls_, lua_type_info_t<T>::get_name());
+        lua_setmetatable(ls_, -2);
+    }
     static void push_stack(lua_State* ls_, T* arg_)
     {
         void* ptr = lua_newuserdata(ls_, sizeof(userdata_for_object_t<T>));
