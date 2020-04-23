@@ -112,6 +112,6 @@ green_luacpp.reg(lua_reg);
 
 欢迎使用，祝使用愉快
 
-* [http://liwangmj.com](http://liwangmj.com)
+* [https://liwmj.com](http://liwmj.com)
 * [liwangmj@gmail.com](mailto:liwangmj@gmail.com)
 
